@@ -46,7 +46,7 @@ if selected_prod_line != 'All':
     filtered_df = filtered_df[filtered_df['PROD_LINE'] == selected_prod_line]
 
 # Tabs
-tabs = st.tabs(["KPI Overview", "Retention Distribution", "Loss & Growth", "Correlation Analysis", "Retention Segments"])
+tabs = st.tabs(["KPI Overview", "Visual Insights", "Retention Segments"])
 
 # --- Tab 1: KPI Overview ---
 with tabs[0]:
@@ -67,43 +67,18 @@ with tabs[0]:
     with col6:
         st.metric("NB Premium Amt", f"${filtered_df['NB_WRTN_PREM_AMT'].sum():,.0f}")
 
-# --- Tab 2: Retention Distribution ---
+# --- Tab 2: Visual Insights ---
 with tabs[1]:
-    st.header("📈 Retention Ratio Distribution")
-    fig = px.histogram(filtered_df, x="RETENTION_RATIO", nbins=50, title="Distribution of Retention Ratios",
-                       text_auto=True)
-    st.plotly_chart(fig, use_container_width=True)
+    st.header("📊 Key Visual Insights")
 
-    st.subheader("Retention Ratio by Appointment Year")
+    st.subheader("Retention Ratio by Year")
     line_df = filtered_df.groupby("AGENCY_APPOINTMENT_YEAR")[["RETENTION_RATIO"]].mean().reset_index()
     fig_line = px.line(line_df, x="AGENCY_APPOINTMENT_YEAR", y="RETENTION_RATIO", markers=True,
-                       labels={"AGENCY_APPOINTMENT_YEAR": "Agency Appointment Year", "RETENTION_RATIO": "Retention Ratio"},
-                       text="RETENTION_RATIO")
+                       text="RETENTION_RATIO", title="Average Retention Ratio per Year")
     fig_line.update_traces(textposition="top center")
     st.plotly_chart(fig_line, use_container_width=True)
 
-# --- Tab 3: Loss & Growth ---
-with tabs[2]:
-    st.header("📉 Loss Ratio and Growth Rate")
-
-    st.subheader("Loss Ratio Distribution")
-    fig_loss = px.histogram(filtered_df, x="LOSS_RATIO", nbins=40, title="Distribution of Loss Ratios", text_auto=True)
-    st.plotly_chart(fig_loss, use_container_width=True)
-
-    st.subheader("Growth Rate (3Y) Distribution")
-    fig_growth = px.histogram(filtered_df, x="GROWTH_RATE_3YR", nbins=40, title="Distribution of 3-Year Growth Rate", text_auto=True)
-    st.plotly_chart(fig_growth, use_container_width=True)
-
-    st.subheader("Scatter: Loss Ratio vs Retention Ratio")
-    fig_scatter = px.scatter(filtered_df, x="LOSS_RATIO", y="RETENTION_RATIO", color="GROWTH_RATE_3YR",
-                             size="ACTIVE_PRODUCERS", hover_data=['AGENCY_APPOINTMENT_YEAR'],
-                             title="Loss Ratio vs Retention Ratio",
-                             labels={"LOSS_RATIO": "Loss Ratio", "RETENTION_RATIO": "Retention Ratio"})
-    st.plotly_chart(fig_scatter, use_container_width=True)
-
-# --- Tab 4: Correlation ---
-with tabs[3]:
-    st.header("🔍 Correlation Matrix of Key Features")
+    st.subheader("Correlation Heatmap")
     selected_cols = [
         'AGENCY_APPOINTMENT_YEAR', 'WRTN_PREM_AMT', 'NB_WRTN_PREM_AMT',
         'POLY_INFORCE_QTY', 'PREV_POLY_INFORCE_QTY', 'LOSS_RATIO',
@@ -112,14 +87,18 @@ with tabs[3]:
     corr_matrix = corr_df.corr()
     fig_corr, ax = plt.subplots(figsize=(10, 7))
     sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt=".2f", ax=ax)
-    ax.set_title("Correlation Heatmap of Selected Variables")
-    ax.set_xlabel("Features")
-    ax.set_ylabel("Features")
+    ax.set_title("Correlation Among Key Metrics")
     st.pyplot(fig_corr)
 
-# --- Tab 5: Retention Segments ---
-with tabs[4]:
-    st.header("📊 Retention Level Segmentation")
+    st.subheader("Loss Ratio vs Retention Ratio")
+    fig_scatter = px.scatter(filtered_df, x="LOSS_RATIO", y="RETENTION_RATIO", color="GROWTH_RATE_3YR",
+                             size="ACTIVE_PRODUCERS", title="Scatter: Loss Ratio vs Retention Ratio",
+                             labels={"LOSS_RATIO": "Loss Ratio", "RETENTION_RATIO": "Retention Ratio"})
+    st.plotly_chart(fig_scatter, use_container_width=True)
+
+# --- Tab 3: Retention Segments ---
+with tabs[2]:
+    st.header("📑 Retention Segmentation")
 
     def categorize_retention(r):
         if r >= 0.8:
@@ -133,7 +112,7 @@ with tabs[4]:
     segment_df = filtered_df.groupby('Retention_Level')[['LOSS_RATIO', 'GROWTH_RATE_3YR', 'ACTIVE_PRODUCERS']].mean().reset_index()
     st.dataframe(segment_df)
 
-    st.subheader("Segmented Averages for Key Metrics")
+    st.subheader("Comparison by Retention Level")
     fig_bar = px.bar(segment_df, x='Retention_Level', y=['LOSS_RATIO', 'GROWTH_RATE_3YR'],
-                     barmode='group', title="Average Loss & Growth by Retention Level", text_auto=True)
+                     barmode='group', title="Average Metrics by Retention Segment", text_auto=True)
     st.plotly_chart(fig_bar, use_container_width=True)
