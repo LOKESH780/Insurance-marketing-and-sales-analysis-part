@@ -15,6 +15,12 @@ if not st.session_state.logged_in:
     login()
     st.stop()
 
+# === Title ===
+st.markdown("""
+    <h1 style='text-align: center; color: #ffffff; margin-bottom: 10px;'>📊 Retention Analysis Dashboard</h1>
+    <hr style='border: 1px solid #666;' />
+""", unsafe_allow_html=True)
+
 col1, col2, col3 = st.columns([6, 1, 1])
 with col3:
     if st.button("🚪 Logout"):
