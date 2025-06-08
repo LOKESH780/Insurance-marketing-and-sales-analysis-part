@@ -15,14 +15,14 @@ if not st.session_state.logged_in:
     login()
     st.stop()
 
-# === Title ===
-st.markdown("""
-    <h1 style='text-align: center; color: #ffffff; margin-bottom: 10px;'>📊 Retention Analysis Dashboard</h1>
-    <hr style='border: 1px solid #666;' />
-""", unsafe_allow_html=True)
-
-col1, col2, col3 = st.columns([6, 1, 1])
-with col3:
+# === Title and Logout ===
+col1, col2 = st.columns([9, 1])
+with col1:
+    st.markdown("""
+        <h1 style='text-align: left; color: #ffffff;'>📊 Retention Analysis Dashboard</h1>
+        <hr style='border: 1px solid #666;' />
+    """, unsafe_allow_html=True)
+with col2:
     if st.button("🚪 Logout"):
         st.session_state.logged_in = False
         st.rerun()
@@ -46,7 +46,16 @@ if selected_prod_line != 'All':
     filtered_df = filtered_df[filtered_df['PROD_LINE'] == selected_prod_line]
 
 # Tabs
-tabs = st.tabs(["KPI Overview", "Visual Insights", "Retention Segments"])
+tabs = st.tabs([
+    "KPI Overview",
+    "Retention Distribution",
+    "Loss & Growth Trends",
+    "Correlation Analysis",
+    "Retention Segments",
+    "Premium Breakdown",
+    "Agency Contribution",
+    "Growth vs Premium"
+])
 
 # --- Tab 1: KPI Overview ---
 with tabs[0]:
@@ -67,18 +76,37 @@ with tabs[0]:
     with col6:
         st.metric("NB Premium Amt", f"${filtered_df['NB_WRTN_PREM_AMT'].sum():,.0f}")
 
-# --- Tab 2: Visual Insights ---
+# --- Tab 2: Retention Distribution ---
 with tabs[1]:
-    st.header("📊 Key Visual Insights")
-
-    st.subheader("Retention Ratio by Year")
-    line_df = filtered_df.groupby("AGENCY_APPOINTMENT_YEAR")[["RETENTION_RATIO"]].mean().reset_index()
+    st.header("📈 Retention Ratio Trends")
+    line_df = filtered_df.groupby("AGENCY_APPOINTMENT_YEAR")["RETENTION_RATIO"].mean().reset_index()
     fig_line = px.line(line_df, x="AGENCY_APPOINTMENT_YEAR", y="RETENTION_RATIO", markers=True,
                        text="RETENTION_RATIO", title="Average Retention Ratio per Year")
     fig_line.update_traces(textposition="top center")
     st.plotly_chart(fig_line, use_container_width=True)
 
-    st.subheader("Correlation Heatmap")
+    st.subheader("Boxplot: Retention Ratio by Product Line")
+    if 'PROD_LINE' in filtered_df.columns:
+        fig_box = px.box(filtered_df, x="PROD_LINE", y="RETENTION_RATIO", title="Retention Ratio by Product Line")
+        st.plotly_chart(fig_box, use_container_width=True)
+
+# --- Tab 3: Loss & Growth Trends ---
+with tabs[2]:
+    st.header("📉 Loss Ratio & Growth Insights")
+    st.subheader("Scatter Plot: Loss Ratio vs Retention Ratio")
+    fig_scatter = px.scatter(filtered_df, x="LOSS_RATIO", y="RETENTION_RATIO", color="GROWTH_RATE_3YR",
+                             size="ACTIVE_PRODUCERS", title="Loss Ratio vs Retention Ratio")
+    st.plotly_chart(fig_scatter, use_container_width=True)
+
+    st.subheader("Line Chart: Avg Growth Rate Over Time")
+    growth_df = filtered_df.groupby("AGENCY_APPOINTMENT_YEAR")["GROWTH_RATE_3YR"].mean().reset_index()
+    fig_growth = px.line(growth_df, x="AGENCY_APPOINTMENT_YEAR", y="GROWTH_RATE_3YR",
+                         title="Avg 3-Year Growth Rate Over Time", markers=True)
+    st.plotly_chart(fig_growth, use_container_width=True)
+
+# --- Tab 4: Correlation Analysis ---
+with tabs[3]:
+    st.header("🔍 Correlation Among Key Variables")
     selected_cols = [
         'AGENCY_APPOINTMENT_YEAR', 'WRTN_PREM_AMT', 'NB_WRTN_PREM_AMT',
         'POLY_INFORCE_QTY', 'PREV_POLY_INFORCE_QTY', 'LOSS_RATIO',
@@ -87,19 +115,12 @@ with tabs[1]:
     corr_matrix = corr_df.corr()
     fig_corr, ax = plt.subplots(figsize=(10, 7))
     sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt=".2f", ax=ax)
-    ax.set_title("Correlation Among Key Metrics")
+    ax.set_title("Correlation Heatmap of Features")
     st.pyplot(fig_corr)
 
-    st.subheader("Loss Ratio vs Retention Ratio")
-    fig_scatter = px.scatter(filtered_df, x="LOSS_RATIO", y="RETENTION_RATIO", color="GROWTH_RATE_3YR",
-                             size="ACTIVE_PRODUCERS", title="Scatter: Loss Ratio vs Retention Ratio",
-                             labels={"LOSS_RATIO": "Loss Ratio", "RETENTION_RATIO": "Retention Ratio"})
-    st.plotly_chart(fig_scatter, use_container_width=True)
-
-# --- Tab 3: Retention Segments ---
-with tabs[2]:
+# --- Tab 5: Retention Segments ---
+with tabs[4]:
     st.header("📑 Retention Segmentation")
-
     def categorize_retention(r):
         if r >= 0.8:
             return 'High'
@@ -112,7 +133,40 @@ with tabs[2]:
     segment_df = filtered_df.groupby('Retention_Level')[['LOSS_RATIO', 'GROWTH_RATE_3YR', 'ACTIVE_PRODUCERS']].mean().reset_index()
     st.dataframe(segment_df)
 
-    st.subheader("Comparison by Retention Level")
+    st.subheader("Bar Chart: Avg Metrics by Retention Level")
     fig_bar = px.bar(segment_df, x='Retention_Level', y=['LOSS_RATIO', 'GROWTH_RATE_3YR'],
-                     barmode='group', title="Average Metrics by Retention Segment", text_auto=True)
+                     barmode='group', title="Metrics by Retention Category", text_auto=True)
     st.plotly_chart(fig_bar, use_container_width=True)
+
+# --- Tab 6: Premium Breakdown ---
+with tabs[5]:
+    st.header("💰 Premium Contribution Analysis")
+    if 'PROD_LINE' in filtered_df.columns:
+        prem_df = filtered_df.groupby("PROD_LINE")["WRTN_PREM_AMT"].sum().reset_index()
+        fig_pie = px.pie(prem_df, names="PROD_LINE", values="WRTN_PREM_AMT",
+                         title="Written Premium by Product Line", hole=0.4)
+        fig_pie.update_traces(textinfo='percent+label')
+        st.plotly_chart(fig_pie, use_container_width=True)
+
+    st.subheader("Bar Chart: NB Premium Amount by Product")
+    if 'PROD_ABBR' in filtered_df.columns:
+        nb_df = filtered_df.groupby("PROD_ABBR")["NB_WRTN_PREM_AMT"].sum().reset_index()
+        fig_nb_bar = px.bar(nb_df, x="PROD_ABBR", y="NB_WRTN_PREM_AMT", title="NB Premium Amount by Product", text_auto=True)
+        st.plotly_chart(fig_nb_bar, use_container_width=True)
+
+# --- Tab 7: Agency Contribution ---
+with tabs[6]:
+    st.header("🏢 Agency Contribution to Premium")
+    if 'AGENCY_ID' in filtered_df.columns:
+        agency_prem = filtered_df.groupby("AGENCY_ID")["WRTN_PREM_AMT"].sum().reset_index()
+        fig_agency = px.bar(agency_prem, x="AGENCY_ID", y="WRTN_PREM_AMT",
+                            title="Premium Contribution by Agency", text_auto=True)
+        st.plotly_chart(fig_agency, use_container_width=True)
+
+# --- Tab 8: Growth vs Premium ---
+with tabs[7]:
+    st.header("📊 Growth vs Premium Relationship")
+    fig_rel = px.scatter(filtered_df, x="GROWTH_RATE_3YR", y="WRTN_PREM_AMT",
+                         title="Growth Rate vs Written Premium", color="RETENTION_RATIO",
+                         size="ACTIVE_PRODUCERS", hover_data=['PROD_ABBR'])
+    st.plotly_chart(fig_rel, use_container_width=True)
