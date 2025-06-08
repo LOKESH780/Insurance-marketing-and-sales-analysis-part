@@ -90,6 +90,10 @@ with tabs[1]:
         fig_box = px.box(filtered_df, x="PROD_LINE", y="RETENTION_RATIO", title="Retention Ratio by Product Line")
         st.plotly_chart(fig_box, use_container_width=True)
 
+    st.subheader("Histogram: Retention Ratio Distribution")
+    fig_hist = px.histogram(filtered_df, x="RETENTION_RATIO", nbins=30, title="Distribution of Retention Ratios")
+    st.plotly_chart(fig_hist, use_container_width=True)
+
 # --- Tab 3: Loss & Growth Trends ---
 with tabs[2]:
     st.header("📉 Loss Ratio & Growth Insights")
@@ -104,6 +108,11 @@ with tabs[2]:
                          title="Avg 3-Year Growth Rate Over Time", markers=True)
     st.plotly_chart(fig_growth, use_container_width=True)
 
+    st.subheader("Bar Chart: Loss Ratio by Product Line")
+    loss_df = filtered_df.groupby("PROD_LINE")["LOSS_RATIO"].mean().reset_index()
+    fig_loss_bar = px.bar(loss_df, x="PROD_LINE", y="LOSS_RATIO", title="Average Loss Ratio by Product Line", text_auto=True)
+    st.plotly_chart(fig_loss_bar, use_container_width=True)
+
 # --- Tab 4: Correlation Analysis ---
 with tabs[3]:
     st.header("🔍 Correlation Among Key Variables")
@@ -117,6 +126,11 @@ with tabs[3]:
     sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt=".2f", ax=ax)
     ax.set_title("Correlation Heatmap of Features")
     st.pyplot(fig_corr)
+
+    st.subheader("Scatter Plot: Premium vs Policies In Force")
+    fig_corr2 = px.scatter(filtered_df, x="POLY_INFORCE_QTY", y="WRTN_PREM_AMT", color="RETENTION_RATIO",
+                           title="Premium vs Policies In Force")
+    st.plotly_chart(fig_corr2, use_container_width=True)
 
 # --- Tab 5: Retention Segments ---
 with tabs[4]:
@@ -137,6 +151,11 @@ with tabs[4]:
     fig_bar = px.bar(segment_df, x='Retention_Level', y=['LOSS_RATIO', 'GROWTH_RATE_3YR'],
                      barmode='group', title="Metrics by Retention Category", text_auto=True)
     st.plotly_chart(fig_bar, use_container_width=True)
+
+    st.subheader("Pie Chart: Retention Level Distribution")
+    level_counts = filtered_df['Retention_Level'].value_counts().reset_index()
+    fig_pie_retention = px.pie(level_counts, names='index', values='Retention_Level', title="Retention Level Distribution")
+    st.plotly_chart(fig_pie_retention, use_container_width=True)
 
 # --- Tab 6: Premium Breakdown ---
 with tabs[5]:
