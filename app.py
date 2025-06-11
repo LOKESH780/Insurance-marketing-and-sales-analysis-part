@@ -154,9 +154,20 @@ with tabs[4]:
         else:
             return 'Low'
 
+    # Apply the function to create a new column
     filtered_df['Retention_Level'] = filtered_df['RETENTION_RATIO'].apply(categorize_retention)
-    segment_df = filtered_df.groupby('Retention_Level')[['LOSS_RATIO', 'GROWTH_RATE_3YR', 'ACTIVE_PRODUCERS']].mean().reset_index()
-    st.dataframe(segment_df)
+
+    # Group by Retention Level and compute mean of selected metrics
+    segment_df = filtered_df.groupby('Retention_Level')[
+    ['LOSS_RATIO', 'GROWTH_RATE_3YR', 'ACTIVE_PRODUCERS']
+    ].mean().reset_index()
+
+    # Display the table only if it's not empty
+    st.subheader("📊 Retention Level Summary Table")
+    if not segment_df.empty:
+        st.dataframe(segment_df)
+    else:
+        st.warning("No data available for the selected filters.")
 
     st.subheader("Bar Chart: Avg Metrics by Retention Level")
     fig_bar = px.bar(segment_df, x='Retention_Level', y=['LOSS_RATIO', 'GROWTH_RATE_3YR'],
