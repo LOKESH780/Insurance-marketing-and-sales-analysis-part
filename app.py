@@ -81,8 +81,7 @@ with tabs[1]:
     st.header("📈 Retention Ratio Trends")
     line_df = filtered_df.groupby("AGENCY_APPOINTMENT_YEAR")["RETENTION_RATIO"].mean().reset_index()
     fig_line = px.line(line_df, x="AGENCY_APPOINTMENT_YEAR", y="RETENTION_RATIO", markers=True,
-                       text="RETENTION_RATIO", title="Average Retention Ratio per Year")
-    fig_line.update_traces(textposition="top center")
+                       title="Average Retention Ratio per Year")
     st.plotly_chart(fig_line, use_container_width=True)
 
     st.subheader("Bar Chart: Avg Retention Ratio by Product Line")
