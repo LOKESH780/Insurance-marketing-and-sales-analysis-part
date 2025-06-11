@@ -163,10 +163,10 @@ with tabs[4]:
                      barmode='group', title="Metrics by Retention Category", text_auto=True)
     st.plotly_chart(fig_bar, use_container_width=True)
 
- st.subheader("Pie Chart: Retention Level Distribution")
-    level_counts = filtered_df['Retention_Level'].value_counts().reset_index()
-    fig_pie_retention = px.pie(level_counts, names='index', values='Retention_Level', title="Retention Level Distribution")
-    st.plotly_chart(fig_pie_retention, use_container_width=True)
+    st.subheader("Pie Chart: Retention Level Distribution")
+        level_counts = filtered_df['Retention_Level'].value_counts().reset_index()
+        fig_pie_retention = px.pie(level_counts, names='index', values='Retention_Level', title="Retention Level Distribution")
+        st.plotly_chart(fig_pie_retention, use_container_width=True)
 
 # --- Tab 6: Premium Breakdown ---
 with tabs[5]:
