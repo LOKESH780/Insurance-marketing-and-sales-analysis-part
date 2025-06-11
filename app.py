@@ -98,13 +98,15 @@ with tabs[1]:
 
 # --- Tab 3: Loss & Growth Trends ---
 with tabs[2]:
+    st.header("📉 Loss Ratio & Growth Insights")
+
     st.subheader("Improved Scatter: Retention vs Loss Ratio by Product Line")
     fig_scatter = px.scatter(
         filtered_df,
         x="LOSS_RATIO", 
         y="RETENTION_RATIO",
-        color="PROD_LINE",  # Helps categorize visually
-        trendline="ols",    # Adds regression line
+        color="PROD_LINE",
+        trendline="ols",
         hover_data=["GROWTH_RATE_3YR", "ACTIVE_PRODUCERS"],
         title="Retention vs Loss Ratio by Product Line"
     )
@@ -197,8 +199,8 @@ with tabs[7]:
         filtered_df,
         x="GROWTH_RATE_3YR",
         y="WRTN_PREM_AMT",
-        color="PROD_ABBR",  # Better categorical clarity
-        size="POLY_INFORCE_QTY",  # Policy volume
+        color="PROD_ABBR",
+        size="POLY_INFORCE_QTY",
         hover_data=["AGENCY_ID", "RETENTION_RATIO"],
         title="Growth Rate vs Written Premium by Product"
     )
