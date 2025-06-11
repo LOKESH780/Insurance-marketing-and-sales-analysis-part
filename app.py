@@ -164,6 +164,7 @@ with tabs[4]:
 
     st.subheader("Pie Chart: Retention Level Distribution")
     level_counts = filtered_df['Retention_Level'].value_counts().reset_index()
+    level_counts.columns = ['Retention_Level', 'Count']  # Rename columns properly
     fig_pie_retention = px.pie(level_counts, names='index', values='Retention_Level', title="Retention Level Distribution")
     st.plotly_chart(fig_pie_retention, use_container_width=True)
 
