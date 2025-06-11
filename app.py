@@ -84,10 +84,12 @@ with tabs[1]:
                        title="Average Retention Ratio per Year")
     st.plotly_chart(fig_line, use_container_width=True)
 
-    st.subheader("Boxplot: Retention Ratio by Product Line")
+    st.subheader("Bar Chart: Avg Retention Ratio by Product Line")
     if 'PROD_LINE' in filtered_df.columns:
-        fig_box = px.box(filtered_df, x="PROD_LINE", y="RETENTION_RATIO", title="Retention Ratio by Product Line")
-        st.plotly_chart(fig_box, use_container_width=True)
+        bar_df = filtered_df.groupby("PROD_LINE")["RETENTION_RATIO"].mean().reset_index()
+        fig_bar_ret = px.bar(bar_df, x="PROD_LINE", y="RETENTION_RATIO", text_auto=True,
+                             title="Average Retention Ratio by Product Line")
+        st.plotly_chart(fig_bar_ret, use_container_width=True)
 
     st.subheader("Histogram: Retention Ratio Distribution")
     fig_hist = px.histogram(filtered_df, x="RETENTION_RATIO", nbins=30, title="Distribution of Retention Ratios")
@@ -96,10 +98,12 @@ with tabs[1]:
 # --- Tab 3: Loss & Growth Trends ---
 with tabs[2]:
     st.header("📉 Loss Ratio & Growth Insights")
-    st.subheader("Scatter Plot: Loss Ratio vs Retention Ratio")
-    fig_scatter = px.scatter(filtered_df, x="LOSS_RATIO", y="RETENTION_RATIO", color="GROWTH_RATE_3YR",
-                             size="ACTIVE_PRODUCERS", title="Loss Ratio vs Retention Ratio")
-    st.plotly_chart(fig_scatter, use_container_width=True)
+    st.subheader("Grouped Bar Chart: Loss Ratio vs Retention")
+    filtered_df['LOSS_BIN'] = pd.cut(filtered_df['LOSS_RATIO'], bins=5)
+    loss_group = filtered_df.groupby("LOSS_BIN")["RETENTION_RATIO"].mean().reset_index()
+    fig_bar_loss = px.bar(loss_group, x="LOSS_BIN", y="RETENTION_RATIO", text_auto=True,
+        title="Avg Retention Ratio for Loss Ratio Bins")
+    st.plotly_chart(fig_bar_loss, use_container_width=True)
 
     st.subheader("Line Chart: Avg Growth Rate Over Time")
     growth_df = filtered_df.groupby("AGENCY_APPOINTMENT_YEAR")["GROWTH_RATE_3YR"].mean().reset_index()
@@ -192,7 +196,7 @@ with tabs[6]:
 # --- Tab 8: Growth vs Premium ---
 with tabs[7]:
     st.header("📊 Growth vs Premium Relationship")
-    fig_rel = px.scatter(filtered_df, x="GROWTH_RATE_3YR", y="WRTN_PREM_AMT",
-                         title="Growth Rate vs Written Premium", color="RETENTION_RATIO",
-                         size="ACTIVE_PRODUCERS", hover_data=['PROD_ABBR'])
-    st.plotly_chart(fig_rel, use_container_width=True)
+    filtered_df['GROWTH_BIN'] = pd.cut(filtered_df['GROWTH_RATE_3YR'], bins=5)
+    growth_prem = filtered_df.groupby("GROWTH_BIN")["WRTN_PREM_AMT"].mean().reset_index()
+    fig_grouped = px.bar(growth_prem, x="GROWTH_BIN", y="WRTN_PREM_AMT", title="Avg Premium by Growth Rate Bin", text_auto=True)
+    st.plotly_chart(fig_grouped, use_container_width=True)
