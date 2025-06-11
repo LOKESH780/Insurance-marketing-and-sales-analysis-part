@@ -144,7 +144,7 @@ with tabs[3]:
 
 # --- Tab 5: Retention Segments ---
 with tabs[4]:
-    st.header("📑 Retention Segmentation")
+    st.header("📁 Retention Segmentation")
 
     def categorize_retention(r):
         if r >= 0.8:
@@ -165,7 +165,8 @@ with tabs[4]:
 
     st.subheader("Pie Chart: Retention Level Distribution")
     level_counts = filtered_df['Retention_Level'].value_counts().reset_index()
-    fig_pie_retention = px.pie(level_counts, names='index', values='Retention_Level', title="Retention Level Distribution")
+    level_counts.columns = ['Retention_Level', 'count']
+    fig_pie_retention = px.pie(level_counts, names='Retention_Level', values='count', title="Retention Level Distribution")
     st.plotly_chart(fig_pie_retention, use_container_width=True)
 
 # --- Tab 6: Premium Breakdown ---
