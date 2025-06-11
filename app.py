@@ -99,10 +99,17 @@ with tabs[1]:
 # --- Tab 3: Loss & Growth Trends ---
 with tabs[2]:
     st.header("📉 Loss Ratio & Growth Insights")
-    st.subheader("Scatter Plot: Loss Ratio vs Retention Ratio (with Trendline)")
-    fig_scatter = px.scatter(filtered_df, x="LOSS_RATIO", y="RETENTION_RATIO", color="GROWTH_RATE_3YR",
-                             size="ACTIVE_PRODUCERS", title="Loss Ratio vs Retention Ratio",
-                             trendline="ols", trendline_color_override="red")
+
+    st.subheader("Improved Scatter: Retention vs Loss Ratio by Product Line")
+    fig_scatter = px.scatter(
+        filtered_df,
+        x="LOSS_RATIO", 
+        y="RETENTION_RATIO",
+        color="PROD_LINE",
+        trendline="ols",
+        hover_data=["GROWTH_RATE_3YR", "ACTIVE_PRODUCERS"],
+        title="Retention vs Loss Ratio by Product Line"
+    )
     st.plotly_chart(fig_scatter, use_container_width=True)
 
     st.subheader("Line Chart: Avg Growth Rate Over Time")
@@ -157,9 +164,7 @@ with tabs[4]:
 
     st.subheader("Pie Chart: Retention Level Distribution")
     level_counts = filtered_df['Retention_Level'].value_counts().reset_index()
-    level_counts.columns = ['Retention_Level', 'count']
-    fig_pie_retention = px.pie(level_counts, names='Retention_Level', values='count',
-                               title="Retention Level Distribution")
+    fig_pie_retention = px.pie(level_counts, names='index', values='Retention_Level', title="Retention Level Distribution")
     st.plotly_chart(fig_pie_retention, use_container_width=True)
 
 # --- Tab 6: Premium Breakdown ---
@@ -189,9 +194,14 @@ with tabs[6]:
 
 # --- Tab 8: Growth vs Premium ---
 with tabs[7]:
-    st.header("📊 Growth vs Premium Relationship")
-    fig_rel = px.scatter(filtered_df, x="GROWTH_RATE_3YR", y="WRTN_PREM_AMT",
-                         title="Growth Rate vs Written Premium", color="RETENTION_RATIO",
-                         size="ACTIVE_PRODUCERS", hover_data=['PROD_ABBR'],
-                         trendline="ols", trendline_color_override="orange")
+    st.header("📊 Growth vs Premium Relationship (Improved)")
+    fig_rel = px.scatter(
+        filtered_df,
+        x="GROWTH_RATE_3YR",
+        y="WRTN_PREM_AMT",
+        color="PROD_ABBR",
+        size="POLY_INFORCE_QTY",
+        hover_data=["AGENCY_ID", "RETENTION_RATIO"],
+        title="Growth Rate vs Written Premium by Product"
+    )
     st.plotly_chart(fig_rel, use_container_width=True)
