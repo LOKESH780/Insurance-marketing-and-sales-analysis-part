@@ -194,6 +194,7 @@ with tabs[5]:
     st.subheader("Bar Chart: NB Premium Amount by Product")
     if 'PROD_ABBR' in filtered_df.columns:
         nb_df = filtered_df.groupby("PROD_ABBR")["NB_WRTN_PREM_AMT"].sum().reset_index()
+        nb_df = nb_df.sort_values(by="NB_WRTN_PREM_AMT", ascending=False)
         fig_nb_bar = px.bar(nb_df, x="PROD_ABBR", y="NB_WRTN_PREM_AMT", title="NB Premium Amount by Product", text_auto=True)
         st.plotly_chart(fig_nb_bar, use_container_width=True)
 
