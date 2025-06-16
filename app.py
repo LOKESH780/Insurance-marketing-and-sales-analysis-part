@@ -32,13 +32,6 @@ with col2:
 #df = pd.read_csv("finalapi.csv")
 df = joblib.load("finalapi.pkl")
 
-# Clean RETENTION_RATIO: keep only values between 0 and 1
-df = df[(df["RETENTION_RATIO"] >= 0) & (df["RETENTION_RATIO"] <= 1)]
-
-# Clean LOSS_RATIO: keep only values between 0 and 1
-df = df[(df["LOSS_RATIO"] >= 0) & (df["LOSS_RATIO"] <= 1)]
-
-
 # === Sidebar Filters ===
 st.sidebar.header("📌 Filter Data")
 year_options = sorted(df['AGENCY_APPOINTMENT_YEAR'].dropna().unique())
