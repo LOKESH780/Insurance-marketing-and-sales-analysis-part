@@ -28,7 +28,8 @@ with col2:
         st.rerun()
 
 # Load Data
-df = pd.read_csv("finalapi.csv")
+#df = pd.read_csv("finalapi.csv")
+df = pd.read_pickle("finalapi.pkl")
 
 # === Sidebar Filters ===
 st.sidebar.header("📌 Filter Data")
