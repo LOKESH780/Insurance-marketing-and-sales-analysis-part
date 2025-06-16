@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import joblib
 import plotly.express as px
 from login import login
 
@@ -29,7 +30,7 @@ with col2:
 
 # Load Data
 #df = pd.read_csv("finalapi.csv")
-df = pd.read_pickle("finalapi.pkl")
+df = joblib.load("finalapi.pkl")
 
 # === Sidebar Filters ===
 st.sidebar.header("📌 Filter Data")
