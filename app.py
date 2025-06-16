@@ -94,7 +94,7 @@ with tabs[1]:
         st.plotly_chart(fig_bar_ret, use_container_width=True)
 
     st.subheader("Histogram: Retention Ratio Distribution")
-    fig_hist = px.histogram(filtered_df, x="RETENTION_RATIO", nbins=30, title="Distribution of Retention Ratios")
+    fig_hist = px.histogram(df, x="RETENTION_RATIO", nbins=30, title="Distribution of Retention Ratios")
     st.plotly_chart(fig_hist, use_container_width=True)
 
 # --- Tab 3: Loss & Growth Trends ---
