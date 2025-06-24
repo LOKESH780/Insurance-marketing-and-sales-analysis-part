@@ -101,10 +101,10 @@ with tabs[1]:
 with tabs[2]:
     st.header("📉 Loss Ratio & Growth Insights")
 
-    st.subheader("Box Plot: Retention Ratio by Product Line")
-    fig_box = px.box(filtered_df, x="PROD_LINE", y="RETENTION_RATIO", color="PROD_LINE",
-                     title="Retention Ratio Distribution by Product Line")
-    st.plotly_chart(fig_box, use_container_width=True)
+    st.subheader("Histogram: Retention Ratio Distribution per Product Line")
+    fig_hist = px.histogram(filtered_df, x="RETENTION_RATIO", facet_col="PROD_LINE",
+                            title="Retention Ratio Distribution by Product Line", nbins=30)
+    st.plotly_chart(fig_hist, use_container_width=True)
 
     st.subheader("Line Chart: Avg Growth Rate Over Time")
     growth_df = filtered_df.groupby("AGENCY_APPOINTMENT_YEAR")["GROWTH_RATE_3YR"].mean().reset_index()
