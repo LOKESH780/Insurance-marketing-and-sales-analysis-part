@@ -107,6 +107,7 @@ with tabs[2]:
         x="LOSS_RATIO", 
         y="RETENTION_RATIO",
         color="PROD_LINE",
+        trendline="ols",
         hover_data=["GROWTH_RATE_3YR", "ACTIVE_PRODUCERS"],
         title="Retention vs Loss Ratio by Product Line"
     )
